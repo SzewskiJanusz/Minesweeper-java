@@ -16,10 +16,15 @@ public class Minesweeper extends JFrame implements
 
 	private JPanel gamepanel;
 	
-	private JButton[][] buttons;
+	private JButton[][] buttons;	// Physical mines
 	
-	private int[][] mines;
+	private int[][] mines;			// Logic mines
 
+	private JLabel timer;			
+	
+	private Boolean firstClick = true; // If true, start timer
+	
+	private Thread t;	// Thread of Timer
 	
 	public static void main(String[] args) {
 		Minesweeper m = new Minesweeper();
@@ -29,47 +34,119 @@ public class Minesweeper extends JFrame implements
 	
 	public Minesweeper(){
 		super("Java minesweeper");
-		this.setSize(220, 300);
-		this.setVisible(true);
-		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		this.setLocationRelativeTo(null);
-		this.addKeyListener(this);
-		this.addMouseListener(this);
+		setSize(220, 300);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setLocationRelativeTo(null);
+		addKeyListener(this);
+		addMouseListener(this);
 		
-		buttons = new JButton[10][10];
-		gamepanel = new JPanel();
-		gamepanel.setLayout(new GridLayout(10, 10));
+		initializeTimer();
+		getContentPane().add(timer, BorderLayout.NORTH);
+		
+		gamepanel = new JPanel(new GridLayout(10, 10));
 		setButtons();
 		this.getContentPane().add(gamepanel,BorderLayout.CENTER);
 		setMines();
 		setNumbersNearMines();
 		
+		JMenuBar menubar = new JMenuBar();
+		JMenu game = new JMenu("Game");
+		
+		JMenuItem newg = new JMenuItem("New");
+		newg.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				  clearButtons();
+				  setMines();
+				  setNumbersNearMines();
+				  try{
+					  t.interrupt();
+				  }catch(NullPointerException npe){}
+				  firstClick = true;
+				  timer.setText("0");
+				  repaint();
+			}
+		});
+		game.add(newg);
+		
+		JMenuItem options = new JMenuItem("Options");
+		options.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				//not implemented yet
+			}
+		});
+		
+		game.add(options);
+		
+		JMenuItem bestscr = new JMenuItem("Best scores");
+		bestscr.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				//not implemented yet
+			}
+		});
+		game.add(bestscr);
+		
+		game.addSeparator();
+		
+		JMenuItem exit = new JMenuItem("Exit");
+		exit.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+		});
+		game.add(exit);
+		
+		menubar.add(game);
+		setJMenuBar(menubar);
+		
+	}
+	
+	private void initializeTimer(){
+		timer = new JLabel("0");
+		timer.setHorizontalAlignment(SwingConstants.CENTER);
 	}
 	
 	//Set visual buttons
 	private void setButtons(){
+		buttons = new JButton[10][10];
 		for (int j = 0 ; j < 10 ; j++){
 			for (int i = 0 ; i < 10 ; i++){
 				buttons[i][j] = new JButton();
 				buttons[i][j].addActionListener(this);
 				buttons[i][j].addMouseListener(this);
 				buttons[i][j].setMargin(new Insets(0,0,0,0));
-				buttons[i][j].setFocusable(false);
 				gamepanel.add(buttons[i][j]);
 			}
 		}
 	}
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		
+	
+	private void clearButtons(){
 		for (int j = 0 ; j < 10 ; j++){
 			for (int i = 0 ; i < 10 ; i++){
-				if (e.getSource() == buttons[i][j]){
+				buttons[i][j].setEnabled(true);
+				buttons[i][j].setText("");
+			}
+		}
+	}
+	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (firstClick){		// Starts timer with 1st click
+			t = new Thread(new Timer());
+			t.start();
+			firstClick = false;
+			System.out.println("dasdas");
+		}
+		for (int j = 0 ; j < 10 ; j++){
+			for (int i = 0 ; i < 10 ; i++){
+				if (e.getSource() == buttons[i][j] && 
+						buttons[i][j].getText() != "X"){
 					clickOnField(i,j);
-					if (ifAllFieldsClicked()){
-						JOptionPane.showMessageDialog(this, "You won!");
-						this.dispose();
-					}
+					if (ifAllFieldsClicked())
+						popupDialogAndExit("You won!");
 				}
 			}
 		}
@@ -80,8 +157,7 @@ public class Minesweeper extends JFrame implements
 		 if (mines[x][y] != -2 && mines[x][y] != -3){
 			 if (mines[x][y] == -1){
 				 buttons[x][y].setText( "M" );
-				 JOptionPane.showMessageDialog(this, "Game over!");
-				 this.dispose();
+				 popupDialogAndExit("Game over!");
 			 }
 			 else{
 			   buttons[x][y].setEnabled(false);
@@ -105,6 +181,12 @@ public class Minesweeper extends JFrame implements
 							       }
 							 }
 		}
+	// Interrupts thread, show dialog and end program
+	private void popupDialogAndExit(String text){
+		t.interrupt();
+		JOptionPane.showMessageDialog(this, text);
+		this.dispose();
+	}
 	
 	private void setMines(){
 		Random r = new Random();
@@ -129,7 +211,8 @@ public class Minesweeper extends JFrame implements
 	private Boolean ifAllFieldsClicked(){
 		for (int j = 0 ; j < 10 ; j++)
 			for (int i = 0 ; i < 10 ; i++)
-				if (buttons[i][j].getText().isEmpty())
+				if (buttons[i][j].getText().isEmpty() && 
+						mines[i][j] != -1)
 					return false;
 		
 		return true;
@@ -169,7 +252,7 @@ public class Minesweeper extends JFrame implements
 							 if (mines[i][j] == -1 || mines[i][j] == -2)
 								 mine++;
 		 return mine;
-		}
+	}
 
 	@Override
 	public void keyTyped(KeyEvent e) {
@@ -183,50 +266,51 @@ public class Minesweeper extends JFrame implements
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_ALT){
-			System.out.println("hide");
+		if (e.getKeyCode() == KeyEvent.VK_ALT)
 			hideAllMines();
+	}
+	//Class which counts time in new thread
+	class Timer implements Runnable{
+		private int seconds;
+		@Override
+		public void run() {
+			seconds = 0;
+			System.out.println("run");
+			while(true){
+				seconds++;
+				try {
+					Thread.sleep(1000);
+					timer.setText(""+seconds);
+				} catch (InterruptedException e) {
+					break;
+				}
+			}
 		}
 		
 	}
-
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		if (e.getButton() == 3){
 			for (int j = 0 ; j < 10 ; j++)
 				for (int i = 0 ; i < 10 ; i++)
-					if (e.getSource() == buttons[i][j])
+					if (e.getSource() == buttons[i][j] && buttons[i][j].isEnabled())
 						if (buttons[i][j].getText().equals("X"))
 							buttons[i][j].setText("");
 						else
 							buttons[i][j].setText("X");
 		}
 	}
-
-	
 	@Override
-	public void mousePressed(MouseEvent e) {
-		
-		
-	}
+	public void mousePressed(MouseEvent e) { }
 
 	@Override
-	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void mouseReleased(MouseEvent e) { }
 
 	@Override
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void mouseEntered(MouseEvent e) { }
 
 	@Override
-	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void mouseExited(MouseEvent e) { }
 
 
 }
