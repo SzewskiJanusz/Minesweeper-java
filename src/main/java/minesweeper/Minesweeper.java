@@ -240,7 +240,7 @@ public class Minesweeper extends JFrame implements
 	}
 
 	private void setNumbersNearMines(){
-		for (int i=0; i < 10; i++)
+		for (int i = 0; i < 10; i++)
 			for (int j = 0; j < 10; j++)
 			  if (mines[i][j]!=-1)
 			   mines[i][j]=countMines(i,j);
@@ -249,9 +249,9 @@ public class Minesweeper extends JFrame implements
 	//Count mines which surround recently clicked cell
 	private int countMines(int x, int y){
 		 int mine=0;
-		 for (int i= x-1; i<=x+1; i++)
+		 for (int i = x-1; i <= x+1; i++)
 			 if (i >= 0 && i < 10)
-				 for (int j=y-1; j<=y+1; j++)
+				 for (int j = y-1; j <= y+1; j++)
 					 if (j >= 0 && j < 10 && (i != x || j != y))
 							 if (mines[i][j] == -1 || mines[i][j] == -2)
 								 mine++;
