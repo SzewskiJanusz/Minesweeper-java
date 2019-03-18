@@ -23,6 +23,7 @@ public class Minesweeper extends JFrame implements
 	private JLabel timer;				// Shows actual time from start
 	private Boolean firstClick = true; 	// If true, start timer
 	private Thread t;					// Distinct thread for timer
+	private boolean cheatUsed;
 	
 	public static void main(String[] args) {
 		Minesweeper m = new Minesweeper();
@@ -34,6 +35,7 @@ public class Minesweeper extends JFrame implements
 		setSize(220, 300);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
+		setFocusable(true);
 		addKeyListener(this);
 		addMouseListener(this);
 		
@@ -101,8 +103,13 @@ public class Minesweeper extends JFrame implements
 		
 	}
 	
-	public void setLogicalMines(){
-		setMines();
+	/**
+	 * For testing purposes
+	 * @param x - coords X of mines
+	 * @param y - coords Y of mines
+	 */
+	public void setLogicalMines(int[] x, int[] y){
+		setMines(x, y);
 		setNumbersNearMines();
 	}
 	
@@ -210,6 +217,16 @@ public class Minesweeper extends JFrame implements
 		}
 	}
 	
+	// FOR TESTING PURPOSE
+	public void setMines(int[] x, int[] y){
+		mines = new int[10][10];
+		for (int i = 0 ; i < 10 ; i++)
+			if (x[i] >= 0 && x[i] <= 9 && y[i] >= 0 && y[i] <= 9)
+				mines[x[i]][y[i]] = -1;
+			else
+				throw new IllegalArgumentException();
+	}
+	
 	private Boolean ifAllFieldsClicked(){
 		for (int j = 0 ; j < 10 ; j++)
 			for (int i = 0 ; i < 10 ; i++)
@@ -220,7 +237,7 @@ public class Minesweeper extends JFrame implements
 		return true;
 	}
 	//(CHEAT) Shows all mines on board
-	private void showAllMines(){
+	public void showAllMines(){
 		for (int j = 0 ; j < 10 ; j++){
 			for (int i = 0 ; i < 10 ; i++){
 				if (mines[i][j] == -1){
@@ -228,13 +245,15 @@ public class Minesweeper extends JFrame implements
 				}
 			}
 		}
+		cheatUsed = true;
 	}
 	
-	private void hideAllMines(){
+	public void hideAllMines(){
 		for (int j = 0 ; j < 10 ; j++)
 			for (int i = 0 ; i < 10 ; i++)
 				if (mines[i][j] == -1)
 					buttons[i][j].setText("");
+		cheatUsed = false;
 	}
 
 	private void setNumbersNearMines(){
@@ -257,20 +276,18 @@ public class Minesweeper extends JFrame implements
 	}
 
 	@Override
-	public void keyTyped(KeyEvent e) {
-		
-	}
+	public void keyTyped(KeyEvent e) {	}
 	@Override
 	public void keyPressed(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_ALT) 
-			showAllMines();
+			if (cheatUsed)
+				hideAllMines();
+			else
+				showAllMines();
 	}
 
 	@Override
-	public void keyReleased(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_ALT)
-			hideAllMines();
-	}
+	public void keyReleased(KeyEvent e) {}
 	//Class which counts time in new thread
 	class Timer implements Runnable{
 		private int seconds;
@@ -318,9 +335,15 @@ public class Minesweeper extends JFrame implements
 		return timer;
 	}
 
-	public void setTimer(JLabel timer) {
-		this.timer = timer;
+	public int[][] getLogicalMines() {
+		return mines;
 	}
 
+	public JButton[][] getButtons() {
+		return buttons;
+	}
 
+	public void setButtons(JButton[][] buttons) {
+		this.buttons = buttons;
+	}
 }
