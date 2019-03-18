@@ -101,6 +101,11 @@ public class Minesweeper extends JFrame implements
 		
 	}
 	
+	public void setLogicalMines(){
+		setMines();
+		setNumbersNearMines();
+	}
+	
 	private void initializeTimer(){
 		timer = new JLabel("0");
 		timer.setHorizontalAlignment(SwingConstants.CENTER);
@@ -277,7 +282,7 @@ public class Minesweeper extends JFrame implements
 				seconds++;
 				try {
 					Thread.sleep(1000);
-					timer.setText(""+seconds);
+					getTimer().setText(""+seconds);
 				} catch (InterruptedException e) {
 					break;
 				}
@@ -308,6 +313,14 @@ public class Minesweeper extends JFrame implements
 
 	@Override
 	public void mouseExited(MouseEvent e) { }
+
+	public JLabel getTimer() {
+		return timer;
+	}
+
+	public void setTimer(JLabel timer) {
+		this.timer = timer;
+	}
 
 
 }
