@@ -16,6 +16,8 @@ import javax.swing.*;
 public class Minesweeper extends JFrame implements 
 									  ActionListener,KeyListener,MouseListener {
 
+	private final int RIGHT_MOUSE_BUTTON = 3;
+
 	private JPanel gamepanel;
 	
 	private JButton[][] buttons;	// Physical mines
@@ -291,17 +293,17 @@ public class Minesweeper extends JFrame implements
 		
 	}
 	@Override
-	public void mouseClicked(MouseEvent e) {
-		if (e.getButton() == 3){
-			for (int j = 0 ; j < 10 ; j++)
-				for (int i = 0 ; i < 10 ; i++)
-					if (e.getSource() == buttons[i][j] && buttons[i][j].isEnabled())
-						if (buttons[i][j].getText().equals("X"))
-							buttons[i][j].setText("");
-						else
-							buttons[i][j].setText("X");
+	public void mouseClicked(MouseEvent e) 
+	{
+		if (e.getButton() == RIGHT_MOUSE_BUTTON) {
+			if (e.getSource().getClass().isInstance(new JButton())) {
+				JButton jb_temp = (JButton)e.getSource();
+				if (jb_temp.isEnabled())
+					jb_temp.setText(jb_temp.getText().equals("X") ? "" : "X");	
+			}
 		}
 	}
+
 	@Override
 	public void mousePressed(MouseEvent e) { }
 
