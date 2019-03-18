@@ -174,16 +174,16 @@ public class Minesweeper extends JFrame implements
 	//Implementation of Flood fill algorithm to find nearby zeros
 	private void showZeros(int x, int y){
 		 if (mines[x][y] == 0)
-			 for (int i= x-1; i<= x+1; i++)
-				 if (i>=0 && i<10)
-					 for (int j=y-1; j<=y+1; j++)
+			 for (int i = x-1; i <= x+1; i++)
+				 if (i >= 0 && i < 10)
+					 for (int j= y-1; j <= y+1; j++)
 						 if (j >= 0 && j < 10 && (i != x || j != y) ) {
 								 buttons[i][j].setText(Integer.toString(mines[i][j]));
-							       if (buttons[i][j].isEnabled()){
-							    	   buttons[i][j].setEnabled(false);
-							    	   showZeros(i,j);
-							       }
-							 }
+						         if (buttons[i][j].isEnabled()){
+						    	     buttons[i][j].setEnabled(false);
+						    	     showZeros(i,j);
+						         }
+						 }
 		}
 	// Interrupts thread, show dialog and end program
 	private void popupDialogAndExit(String text){
