@@ -17,24 +17,17 @@ public class Minesweeper extends JFrame implements
 									  ActionListener,KeyListener,MouseListener {
 
 	private final int RIGHT_MOUSE_BUTTON = 3;
-
-	private JPanel gamepanel;
-	
-	private JButton[][] buttons;	// Physical mines
-	
-	private int[][] mines;			// Logic mines
-
-	private JLabel timer;			
-	
-	private Boolean firstClick = true; // If true, start timer
-	
-	private Thread t;	// Thread of Timer
+	private JPanel gamepanel;			// Main game panel
+	private JButton[][] buttons;		// Physical mines
+	private int[][] mines;				// Logic mines
+	private JLabel timer;				// Shows actual time from start
+	private Boolean firstClick = true; 	// If true, start timer
+	private Thread t;					// Distinct thread for timer
 	
 	public static void main(String[] args) {
 		Minesweeper m = new Minesweeper();
 		m.setVisible(true);
 	}
-	
 	
 	public Minesweeper(){
 		super("Java minesweeper");
