@@ -55,15 +55,7 @@ public class Minesweeper extends JFrame implements
 		newg.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				  clearButtons();
-				  setMines();
-				  setNumbersNearMines();
-				  try{
-					  t.interrupt();
-				  }catch(NullPointerException npe){}
-				  firstClick = true;
-				  timer.setText("0");
-				  repaint();
+				  startNewGame();
 			}
 		});
 		game.add(newg);
@@ -101,6 +93,19 @@ public class Minesweeper extends JFrame implements
 		menubar.add(game);
 		setJMenuBar(menubar);
 		
+	}
+	
+	public void startNewGame() {
+		clearButtons();
+		setMines();
+		setNumbersNearMines();
+		try{
+			t.interrupt();
+		}
+		catch(NullPointerException npe){}
+		firstClick = true;
+		timer.setText("0");
+		repaint();
 	}
 	
 	/**
