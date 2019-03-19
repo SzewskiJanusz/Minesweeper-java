@@ -127,6 +127,8 @@ public class Minesweeper extends JFrame implements
 				buttons[i][j].addActionListener(this);
 				buttons[i][j].addMouseListener(this);
 				buttons[i][j].setMargin(new Insets(0,0,0,0));
+				buttons[i][j].putClientProperty("x", i);
+				buttons[i][j].putClientProperty("y", j);
 				gamepanel.add(buttons[i][j]);
 			}
 		}
@@ -149,18 +151,20 @@ public class Minesweeper extends JFrame implements
 			firstClick = false;
 			System.out.println("dasdas");
 		}
-		for (int j = 0 ; j < 10 ; j++){
-			for (int i = 0 ; i < 10 ; i++){
-				if (e.getSource() == buttons[i][j] && 
-						buttons[i][j].getText() != "X"){
-					clickOnField(i,j);
-					if (ifAllFieldsClicked())
-						popupDialogAndExit("You won!");
-				}
-			}
-		}
+		tryClick(e.getSource());
 	}
 
+	public void tryClick(Object source) {
+		if (source.getClass().isInstance(new JButton())) {
+			JButton jb_temp = (JButton)source;
+			int x = Integer.parseInt(jb_temp.getClientProperty("x").toString());
+			int y = Integer.parseInt((String) jb_temp.getClientProperty("y").toString());
+			clickOnField(x, y);
+			if (ifAllFieldsClicked())
+				popupDialogAndExit("You won!");
+		}
+	}
+	
 	// End if clicked on unknown mine
 	private void clickOnField(int x,int y){
 		 if (mines[x][y] == -1){
