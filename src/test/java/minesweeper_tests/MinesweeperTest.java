@@ -36,8 +36,7 @@ public class MinesweeperTest {
 	}
 	
 	@Test
-	public void ShowAllMinesTest()
-	{
+	public void ShowAllMinesTest(){
 		Minesweeper m = new Minesweeper();
 		int[] x = {2,5,3,6,7,3,9,1,0,5};
 		int[] y = {5,4,7,8,1,2,9,3,2,6};
@@ -48,8 +47,7 @@ public class MinesweeperTest {
 	}
 	
 	@Test
-	public void HideAllMinesTest()
-	{
+	public void HideAllMinesTest(){
 		Minesweeper m = new Minesweeper();
 		int[] x = {2,5,3,6,7,3,9,1,0,5};
 		int[] y = {5,4,7,8,1,2,9,3,2,6};
@@ -61,12 +59,39 @@ public class MinesweeperTest {
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
-	public void NegativeCoordTest()
-	{
+	public void NegativeCoordTest(){
 		Minesweeper m = new Minesweeper();
 		int[] x = {2,5,3,6,7,3,9,-1,0,5};
 		int[] y = {5,4,7,8,1,2,9,3,2,6};
 		m.setLogicalMines(x, y);
+	}
+	
+	@Test
+	public void AllMinesClickedTest(){
+		Minesweeper m = new Minesweeper();
+		int[] x = {2,5,3,6,7,3,9,1,0,5};
+		int[] y = {5,4,7,8,1,2,9,3,2,6};
+		m.setLogicalMines(x, y);
+		int[] clickX = {9,5,7,1,2,0,2,3,2,3,4,0,3,4,5,3,4,4,5,6,7,8};
+		int[] clickY = {0,0,0,2,2,3,3,3,4,4,4,5,5,5,5,6,6,7,7,9,9,9};
+		// startup
+		m.startTimer();
+		m.setFirstClick(false);
+		// clicking on field
+		for(int i = 0 ; i < clickX.length ; i++)
+			m.clickOnField(clickX[i], clickY[i]);
+		// check if victory
+		boolean didIWin = m.ifAllFieldsClicked();
+		// assert true, because u should win
+		assertEquals(true, didIWin);
+	}
+	
+	@Test
+	public void StartNewGameTest(){
+		Minesweeper m = new Minesweeper();
+		m.startNewGame();
+		assertTrue(m.isFirstClick());
+		assertEquals("0" , m.getTimer().getText());
 	}
 
 }
