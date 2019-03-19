@@ -160,20 +160,18 @@ public class Minesweeper extends JFrame implements
 			}
 		}
 	}
-	
+
 	// End if clicked on unknown mine
 	private void clickOnField(int x,int y){
-		 if (mines[x][y] != -2 && mines[x][y] != -3){
-			 if (mines[x][y] == -1){
-				 buttons[x][y].setText( "M" );
-				 popupDialogAndExit("Game over!");
-			 }
-			 else{
-			   buttons[x][y].setEnabled(false);
-			   buttons[x][y].setText(Integer.toString(mines[x][y]));
-			   if (mines[x][y] == 0 )
-				   showZeros(x,y);
-			 }
+		 if (mines[x][y] == -1){
+			 buttons[x][y].setText( "M" );
+			 popupDialogAndExit("Game over!");
+		 }
+		 else{
+		   buttons[x][y].setEnabled(false);
+		   buttons[x][y].setText(Integer.toString(mines[x][y]));
+		   if (mines[x][y] == 0 )
+			   showZeros(x,y);
 		 }
 	}
 	//Implementation of Flood fill algorithm to find nearby zeros
@@ -227,7 +225,7 @@ public class Minesweeper extends JFrame implements
 				throw new IllegalArgumentException();
 	}
 	
-	private Boolean ifAllFieldsClicked(){
+	public Boolean ifAllFieldsClicked(){
 		for (int j = 0 ; j < 10 ; j++)
 			for (int i = 0 ; i < 10 ; i++)
 				if (buttons[i][j].getText().isEmpty() && 
