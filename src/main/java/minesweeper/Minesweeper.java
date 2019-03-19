@@ -145,28 +145,35 @@ public class Minesweeper extends JFrame implements
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (firstClick){		// Starts timer with 1st click
-			t = new Thread(new Timer());
-			t.start();
+		if (firstClick) {		// Starts timer with 1st click
+			startTimer();
 			firstClick = false;
-			System.out.println("dasdas");
 		}
-		tryClick(e.getSource());
+		if (isJButton(e.getSource())) {
+			tryClick(e.getSource());
+		}
+		
+	}
+
+	public void startTimer() {
+		t = new Thread(new Timer());
+		t.start();
 	}
 
 	public void tryClick(Object source) {
-		if (source.getClass().isInstance(new JButton())) {
-			JButton jb_temp = (JButton)source;
-			int x = Integer.parseInt(jb_temp.getClientProperty("x").toString());
-			int y = Integer.parseInt((String) jb_temp.getClientProperty("y").toString());
-			clickOnField(x, y);
-			if (ifAllFieldsClicked())
-				popupDialogAndExit("You won!");
-		}
+		JButton jb_temp = (JButton)source;
+		int x = Integer.parseInt(jb_temp.getClientProperty("x").toString());
+		int y = Integer.parseInt((String) jb_temp.getClientProperty("y").toString());
+		clickOnField(x, y);
+		if (ifAllFieldsClicked())
+			popupDialogAndExit("You won!");
+	}
+
+	private boolean isJButton(Object source) {
+		return source.getClass().isInstance(new JButton());
 	}
 	
-	// End if clicked on unknown mine
-	private void clickOnField(int x,int y){
+	public void clickOnField(int x,int y){
 		 if (mines[x][y] == -1){
 			 buttons[x][y].setText( "M" );
 			 popupDialogAndExit("Game over!");
@@ -313,7 +320,7 @@ public class Minesweeper extends JFrame implements
 	public void mouseClicked(MouseEvent e) 
 	{
 		if (e.getButton() == RIGHT_MOUSE_BUTTON) {
-			if (e.getSource().getClass().isInstance(new JButton())) {
+			if (isJButton(e.getSource())) {
 				JButton jb_temp = (JButton)e.getSource();
 				if (jb_temp.isEnabled())
 					jb_temp.setText(jb_temp.getText().equals("X") ? "" : "X");	
@@ -347,5 +354,13 @@ public class Minesweeper extends JFrame implements
 
 	public void setButtons(JButton[][] buttons) {
 		this.buttons = buttons;
+	}
+
+	public Boolean isFirstClick() {
+		return firstClick;
+	}
+
+	public void setFirstClick(Boolean firstClick) {
+		this.firstClick = firstClick;
 	}
 }
