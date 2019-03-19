@@ -4,6 +4,25 @@
   <artifactId>Minesweeper-java</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>Minesweeper-java</name>
+  <build>
+  <plugins>
+    <plugin>
+      <!-- Build an executable JAR -->
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-jar-plugin</artifactId>
+      <version>3.1.1</version>
+      <configuration>
+        <archive>
+          <manifest>
+            <addClasspath>true</addClasspath>
+            <classpathPrefix>lib/</classpathPrefix>
+            <mainClass>minesweeper.Minesweeper</mainClass>
+          </manifest>
+        </archive>
+      </configuration>
+    </plugin>
+  </plugins>
+</build>
   <dependencies>
   	<dependency>
   		<groupId>junit</groupId>
