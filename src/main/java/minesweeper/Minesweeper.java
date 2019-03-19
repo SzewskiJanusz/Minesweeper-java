@@ -10,9 +10,22 @@ import javax.swing.*;
  * 
  * @author Aleksander Januszewski
  * Date: 03.11.16
- *
+ * Functionality
+ * - gameplay according to Microsoft's minesweeper
+ * - menubar
+ * 		- new game
+ * 		- exit game
+ * - popup window on game over
+ * - popup window on game won
+ * - timer 
+ * 
+ * Update
+ * Date: 19.03.19
+ * 
+ * Added unit tests (80% branch test coverage)
+ * Refactored some code
+ * Added JavaDoc 
  */
-
 public class Minesweeper extends JFrame implements 
 									  ActionListener,KeyListener,MouseListener {
 
@@ -31,6 +44,7 @@ public class Minesweeper extends JFrame implements
 	}
 	
 	public Minesweeper(){
+		// JFrame setup
 		super("Java minesweeper");
 		setSize(220, 300);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -38,19 +52,24 @@ public class Minesweeper extends JFrame implements
 		setFocusable(true);
 		addKeyListener(this);
 		addMouseListener(this);
-		
+		// Init timer
 		initializeTimer();
+		// Init gamepanel
 		getContentPane().add(timer, BorderLayout.NORTH);
-		
 		gamepanel = new JPanel(new GridLayout(10, 10));
+		// Init buttons and add them to panel
 		setButtons();
+		// Add gamepanel to contentpane of JFrame
 		this.getContentPane().add(gamepanel,BorderLayout.CENTER);
+		// Prepare mines for game
 		setMines();
 		setNumbersNearMines();
 		
+		// Menu bar
 		JMenuBar menubar = new JMenuBar();
+		// Init JMenu
 		JMenu game = new JMenu("Game");
-		
+		// New game menu item
 		JMenuItem newg = new JMenuItem("New");
 		newg.addActionListener(new ActionListener(){
 			@Override
@@ -59,7 +78,7 @@ public class Minesweeper extends JFrame implements
 			}
 		});
 		game.add(newg);
-		
+		// Options menu item
 		JMenuItem options = new JMenuItem("Options");
 		options.addActionListener(new ActionListener(){
 			@Override
@@ -67,9 +86,8 @@ public class Minesweeper extends JFrame implements
 				//not implemented yet
 			}
 		});
-		
 		game.add(options);
-		
+		// Best scores menu item
 		JMenuItem bestscr = new JMenuItem("Best scores");
 		bestscr.addActionListener(new ActionListener(){
 			@Override
@@ -78,9 +96,8 @@ public class Minesweeper extends JFrame implements
 			}
 		});
 		game.add(bestscr);
-		
 		game.addSeparator();
-		
+		// Exit game menu item
 		JMenuItem exit = new JMenuItem("Exit");
 		exit.addActionListener(new ActionListener(){
 			@Override
@@ -89,12 +106,14 @@ public class Minesweeper extends JFrame implements
 			}
 		});
 		game.add(exit);
-		
+		// Add JMenu to JMenuBar
 		menubar.add(game);
 		setJMenuBar(menubar);
-		
 	}
 	
+	/**
+	 * Reset mines, buttons and timer then place new mines.
+	 */
 	public void startNewGame() {
 		clearButtons();
 		setMines();
@@ -123,7 +142,9 @@ public class Minesweeper extends JFrame implements
 		timer.setHorizontalAlignment(SwingConstants.CENTER);
 	}
 	
-	//Set visual buttons
+	/**
+	 * Set every button. Add client property of X and Y in grid.
+	 */
 	private void setButtons(){
 		buttons = new JButton[10][10];
 		for (int j = 0 ; j < 10 ; j++){
@@ -139,6 +160,9 @@ public class Minesweeper extends JFrame implements
 		}
 	}
 	
+	/**
+	 * Reset all buttons.
+	 */
 	private void clearButtons(){
 		for (int j = 0 ; j < 10 ; j++){
 			for (int i = 0 ; i < 10 ; i++){
@@ -148,6 +172,9 @@ public class Minesweeper extends JFrame implements
 		}
 	}
 	
+	/**
+	 * Triggers when clicked on any button in gamepanel.
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (firstClick) {		// Starts timer with 1st click
@@ -157,14 +184,19 @@ public class Minesweeper extends JFrame implements
 		if (isJButton(e.getSource())) {
 			tryClick(e.getSource());
 		}
-		
 	}
 
 	public void startTimer() {
 		t = new Thread(new Timer());
 		t.start();
 	}
-
+	
+	/**
+	 * Converts object to JButton and reads X and Y in grid of this button then
+	 * clicks on field with given coords. If all non-mine fields are clicked then
+	 * game won.
+	 * @param source - e.getSource() from ActionEvent of actionPerformed
+	 */
 	public void tryClick(Object source) {
 		JButton jb_temp = (JButton)source;
 		int x = Integer.parseInt(jb_temp.getClientProperty("x").toString());
@@ -178,6 +210,13 @@ public class Minesweeper extends JFrame implements
 		return source.getClass().isInstance(new JButton());
 	}
 	
+	/**
+	 * Checks if coordinates point on mine. If yes, then game over. 
+	 * If not, set button text to mine's. Additionaly if mine = 0 then start
+	 * flood-fill algorithm to show all zeros and numbers nearby. 
+	 * @param x - coord X of button in grid
+	 * @param y - coord Y of button in grid
+	 */
 	public void clickOnField(int x,int y){
 		 if (mines[x][y] == -1){
 			 buttons[x][y].setText( "M" );
@@ -190,7 +229,12 @@ public class Minesweeper extends JFrame implements
 			   showZeros(x,y);
 		 }
 	}
-	//Implementation of Flood fill algorithm to find nearby zeros
+	/**
+	 * Implementation of flood-fill algorithm to find all zeros and numbers nearby.
+	 * Recursive.
+	 * @param x - coord X of button in grid
+	 * @param y - coord Y of button in grid
+	 */
 	private void showZeros(int x, int y){
 		 if (mines[x][y] == 0)
 			 for (int i = x-1; i <= x+1; i++)
@@ -202,15 +246,21 @@ public class Minesweeper extends JFrame implements
 						    	     buttons[i][j].setEnabled(false);
 						    	     showZeros(i,j);
 						         }
-						 }
-		}
-	// Interrupts thread, show dialog and end program
+					 }
+	}
+	/**
+	 * Interrupts thread, show dialog and end program
+	 * @param text - text to be shown
+	 */
 	private void popupDialogAndExit(String text){
 		t.interrupt();
 		JOptionPane.showMessageDialog(this, text);
 		this.dispose();
 	}
 	
+	/**
+	 * Set all logical mines randomly
+	 */
 	private void setMines(){
 		Random r = new Random();
 		int a;
@@ -231,8 +281,13 @@ public class Minesweeper extends JFrame implements
 		}
 	}
 	
-	// FOR TESTING PURPOSE
+	/**
+	 * Set mines with given coordinates. Used for testing.
+	 * @param x - x in grid
+	 * @param y - y in grid
+	 */
 	public void setMines(int[] x, int[] y){
+		if (x.length != y.length) throw new IllegalArgumentException();
 		mines = new int[10][10];
 		for (int i = 0 ; i < 10 ; i++)
 			if (x[i] >= 0 && x[i] <= 9 && y[i] >= 0 && y[i] <= 9)
@@ -241,6 +296,10 @@ public class Minesweeper extends JFrame implements
 				throw new IllegalArgumentException();
 	}
 	
+	/**
+	 * Checks if all fields were clicked
+	 * @return - true - all fields clicked, false - not yet
+	 */
 	public Boolean ifAllFieldsClicked(){
 		for (int j = 0 ; j < 10 ; j++)
 			for (int i = 0 ; i < 10 ; i++)
@@ -250,7 +309,10 @@ public class Minesweeper extends JFrame implements
 		
 		return true;
 	}
-	//(CHEAT) Shows all mines on board
+
+	/**
+	 * Cheat which shows all mines on board.
+	 */
 	public void showAllMines(){
 		for (int j = 0 ; j < 10 ; j++){
 			for (int i = 0 ; i < 10 ; i++){
@@ -262,6 +324,9 @@ public class Minesweeper extends JFrame implements
 		cheatUsed = true;
 	}
 	
+	/**
+	 * Hide all mines, exposed by cheat.
+	 */
 	public void hideAllMines(){
 		for (int j = 0 ; j < 10 ; j++)
 			for (int i = 0 ; i < 10 ; i++)
@@ -273,11 +338,16 @@ public class Minesweeper extends JFrame implements
 	private void setNumbersNearMines(){
 		for (int i = 0; i < 10; i++)
 			for (int j = 0; j < 10; j++)
-			  if (mines[i][j]!=-1)
-			   mines[i][j]=countMines(i,j);
+			  if (mines[i][j] != -1)
+			   mines[i][j] = countMines(i, j);
 	}
 	
-	//Count mines which surround recently clicked cell
+	/**
+	 * Count mines which surround recently clicked cell
+	 * @param x - x of cell
+	 * @param y - y of cell
+	 * @return numer of mines nearby free cell
+	 */
 	private int countMines(int x, int y){
 		 int mine=0;
 		 for (int i = x-1; i <= x+1; i++)
@@ -302,7 +372,10 @@ public class Minesweeper extends JFrame implements
 
 	@Override
 	public void keyReleased(KeyEvent e) {}
-	//Class which counts time in new thread
+	/**
+	 * @author Janusz
+	 * Class which counts time in new thread
+	 */
 	class Timer implements Runnable{
 		private int seconds;
 		@Override
@@ -345,6 +418,9 @@ public class Minesweeper extends JFrame implements
 	@Override
 	public void mouseExited(MouseEvent e) { }
 
+///////////////////////////////////////////////////////////////////////
+	// GETTERS AND SETTERS
+	
 	public JLabel getTimer() {
 		return timer;
 	}
